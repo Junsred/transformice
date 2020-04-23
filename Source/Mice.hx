@@ -1,3 +1,4 @@
+import box2D.collision.shapes.B2MassData;
 import box2D.common.math.B2Vec2;
 import box2D.dynamics.B2Fixture;
 import box2D.dynamics.B2FixtureDef;
@@ -17,14 +18,15 @@ import haxe.ds.Map;
 
 class Mice extends MovieClip
 {
+    private var animations = new Map<String, MovieClip>();
     public var turnedRight = true;
     public var runningRight = false;
     public var runningLeft = false;
     public var ducking = false;
     public var jumping = false;
     public var furColor = 0xdfd8ce;
+    public var lastMovement:Int;
     public var furId = 1;
-    private var animations = new Map<String, MovieClip>();
     public var physics: B2Body;
 
     public function new(x: Float, y: Float) {
@@ -38,16 +40,20 @@ class Mice extends MovieClip
         bodyDef.type = B2Body.b2_dynamicBody;
         bodyDef.position.x = this.x / 30;
         bodyDef.position.y = this.y / 30;
-        bodyDef.fixedRotation = false;
-        var circleShape: B2CircleShape = new B2CircleShape(0.5);
+        bodyDef.fixedRotation = true;
         var circleFixture: B2FixtureDef = new B2FixtureDef();
-        circleFixture.density = 1.0;
-        circleFixture.friction = 0;
+        circleFixture.density = 2;
+        circleFixture.friction = 0.2;
         circleFixture.restitution = 0.2;
-        circleFixture.shape = circleShape;
+        circleFixture.shape = new B2CircleShape(0.5);
         this.physics = Transformice.instance.physicWorld.createBody(bodyDef);
         this.physics.createFixture(circleFixture);
-        this.physics.setSleepingAllowed(true);
+        var MasseSourisBase = new B2MassData();
+        MasseSourisBase.mass = 20;
+        this.physics.setMassData(MasseSourisBase);
+        var _loc6_:B2Vec2 = this.physics.getLinearVelocity();
+        this.physics.setLinearVelocity(new B2Vec2(_loc6_.x,_loc6_.y));
+        this.physics.setSleepingAllowed(false);
     }
 
     public function runLeft() {
@@ -73,8 +79,9 @@ class Mice extends MovieClip
 
     public function jump() {
         if (!this.jumping) {
+            //this.jumping = true; don't set yet
             this.changeAnim();
-            this.physics.applyImpulse(new B2Vec2(0, -5), this.physics.getPosition());
+            this.physics.m_linearVelocity.y = -5;
         }
     }
 
@@ -148,17 +155,26 @@ class Mice extends MovieClip
         this.y = this.physics.getPosition().y * 30;
         if (this.runningLeft || this.runningRight) {
             if (this.turnedRight) {
-                this.physics.applyImpulse(new B2Vec2(0.1, 0), this.physics.getPosition());
+                if (this.physics.m_linearVelocity.x < 3) {
+                    this.physics.m_linearVelocity.x += 0.5;
+                }
             } else {
-                this.physics.applyImpulse(new B2Vec2(-0.1, 0), this.physics.getPosition());
-                // this.physics.apply(new B2Vec2(1.5, 0), this.physics.getPosition());
+                if (-3 < this.physics.m_linearVelocity.x) {
+                    this.physics.m_linearVelocity.x -= 0.5;
+                }
             }
+            this.lastMovement = flash.Lib.getTimer();
+        } else if (flash.Lib.getTimer() - this.lastMovement < 200) {
+            if(this.physics.m_linearVelocity.x < 3 - 0.5 || -(3 + 0.5) < this.physics.m_linearVelocity.x)
+                {
+                    this.physics.m_linearVelocity.x = this.physics.m_linearVelocity.x / 1.2;
+                }
         }
     };
 
     private function setAnim() {
         var anim = "AnimStatique";
-        if (this.runningLeft || this.runningRight) {
+        if (this.runningLeft || this.runningRight || this.jumping) {
             anim = "AnimCourse";
         } else if (this.ducking) {
             anim = "AnimDuck";
@@ -188,6 +204,7 @@ class Mice extends MovieClip
             animation.filters = [new DropShadowFilter()];
             animations.set(anim, animation);
         }
+        animation.mask = null;
         if (!this.turnedRight && this.scaleX > 0)
             this.scaleX = -(this.scaleX);
         if (this.turnedRight && this.scaleX < 0)

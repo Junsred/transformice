@@ -1,22 +1,16 @@
 package;
 
-import box2D.dynamics.contacts.B2CircleContact;
-import openfl.events.Event;
 import box2D.dynamics.B2Body;
 import box2D.collision.shapes.B2PolygonShape;
-import box2D.collision.shapes.B2Shape;
 import box2D.dynamics.B2DebugDraw;
 import box2D.dynamics.B2FixtureDef;
-import box2D.dynamics.B2Fixture;
-import box2D.collision.shapes.B2CircleShape;
 import box2D.dynamics.B2BodyDef;
 import box2D.common.math.B2Vec2;
 import box2D.dynamics.B2World;
-import lime.ui.Gamepad;
-import lime.ui.GamepadButton;
+import flash.events.Event;
 import flash.display.Sprite;
+import flash.display.StageQuality;
 import flash.events.MouseEvent;
-import flash.events.KeyboardEvent;
 
 class Transformice extends Sprite
 {
@@ -24,12 +18,17 @@ class Transformice extends Sprite
 	public static var instance: Transformice;
 
 	public var mices = new List<Mice>();
-	public var physicWorld: B2World = new B2World(new B2Vec2(0, 10), true);
+	public var physicWorld: B2World;
 	public var player: Player;
+	public var timeZero:Float;
+	public var calculatedImages:Float;
 
 	public function new()
 	{
 		super();
+		this.timeZero = flash.Lib.getTimer();
+		stage.quality = StageQuality.HIGH;
+		this.physicWorld = new B2World(new B2Vec2(0, 10), true);
 		Transformice.instance = this;
 		this.addEventListener(Event.ENTER_FRAME, this.stage_onFrameEnter);
 		var dbgDraw:B2DebugDraw = new B2DebugDraw();
@@ -49,8 +48,8 @@ class Transformice extends Sprite
 		boxShape = new B2PolygonShape();
 		boxFixture = new B2FixtureDef();
 		boxShape.setAsBox(30, 3);
-		boxFixture.density = 0.2;
 		boxFixture.friction = 0.3;
+		boxFixture.restitution = 0.2;
 		boxFixture.shape = boxShape;
 		var body: B2Body = this.physicWorld.createBody(bodyDef);
 		body.createFixture(boxFixture);
@@ -62,15 +61,7 @@ class Transformice extends Sprite
 		stage.addEventListener(MouseEvent.MOUSE_DOWN, stage_onMouseDown);
 		stage.addEventListener(MouseEvent.MOUSE_UP, stage_onMouseUp);
 		stage.addEventListener(MouseEvent.CLICK, stage_onMouseClick);
-		stage.addEventListener(KeyboardEvent.KEY_DOWN, this.player.stage_onKeyDown);
-		stage.addEventListener(KeyboardEvent.KEY_UP, this.player.stage_onKeyUp);
-
-		Gamepad.onConnect.add(gamepad_onConnect);
-
-		for (gamepad in Gamepad.devices)
-		{
-			gamepad_onConnect(gamepad);
-		}
+		stage.addEventListener(Event.RESIZE, resizeDisplay);
 	}
 
 	private function createMice(x: Float, y: Float) {
@@ -81,8 +72,26 @@ class Transformice extends Sprite
 
 	private function stage_onFrameEnter(event: Event): Void 
 	{
-		this.physicWorld.step(1.0/30.0, 10, 10);
+
+		var _loc55_ = flash.Lib.getTimer() - this.timeZero;
+        var _loc56_ = _loc55_ / 33.33;
+        var _loc57_ = _loc56_ - this.calculatedImages;
+		if(_loc57_ > 50)
+		{
+		   _loc57_ = 50;
+		}
+		var _loc29_ = 0;
+		while(_loc29_ < _loc57_) {
+			//migth be 1.0/30.0 not sure 60.0 feels like tfm?
+			this.physicWorld.step(1.0/60.0, 10, 1);
+			_loc29_++;
+		}
+		this.calculatedImages = _loc56_;
 		this.physicWorld.drawDebugData();
+
+	}
+
+	private function resizeDisplay(event: Event) {
 
 	}
 
@@ -108,20 +117,6 @@ class Transformice extends Sprite
 	 
 	}
 
-	private function gamepad_onButtonDown(button:GamepadButton):Void
-	{
-	}
-
-	private function gamepad_onButtonUp(button:GamepadButton):Void
-	{
-	}
-
-	private function gamepad_onConnect(gamepad:Gamepad):Void
-	{
-		gamepad.onButtonDown.add(gamepad_onButtonDown);
-		gamepad.onButtonUp.add(gamepad_onButtonUp);
-	}
-
 	private function stage_onMouseDown(event:MouseEvent):Void
 	{
 	}
@@ -132,7 +127,7 @@ class Transformice extends Sprite
 	
 	private function stage_onMouseClick(event:MouseEvent):Void
 	{
-		var mice = createMice(event.localX, event.localY);
-		player.mice = mice;
+		//var mice = createMice(event.localX, event.localY);
+		//player.mice = mice;
 	}
 }

@@ -4,7 +4,7 @@
 	<meta title="Transoformice" package="org.openfl.transformice" version="1.0.0" company="OpenFL" />
 	<app main="Transformice" path="Export" file="Transformice" />
 	
-	<window width="800" height="600" fps="61" background="#6A7495" allow-high-dpi="true" />
+	<window fps="61" background="#6A7495" resizable="false" />
 	
 	<source path="Source" />
 	
@@ -14,7 +14,6 @@
 	<haxelib name="box2d" />
 
 	<assets path="Assets" rename="assets" />
-	<assets path="assets/fonts" rename="fonts" include="*.ttf" />     
 	<library path="assets/swf/x_B_1.swf" preload="true" id="animations" />
 	<library path="assets/swf/x_Ressources_Class.swf" preload="true" id="resources" />
 	<library path="assets/swf/x_meli_costumes.swf" preload="true" id="costumes" />
