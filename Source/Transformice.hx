@@ -49,7 +49,7 @@ class Transformice extends Sprite
 		boxShape = new B2PolygonShape();
 		boxFixture = new B2FixtureDef();
 		boxShape.setAsBox(30, 3);
-		boxFixture.density = 0.2;a
+		boxFixture.density = 0.2;
 		boxFixture.friction = 0.3;
 		boxFixture.shape = boxShape;
 		var body: B2Body = this.physicWorld.createBody(bodyDef);
