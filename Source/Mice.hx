@@ -1,3 +1,11 @@
+import box2D.common.math.B2Vec2;
+import box2D.dynamics.B2Fixture;
+import box2D.dynamics.B2FixtureDef;
+import box2D.dynamics.contacts.B2CircleContact;
+import box2D.collision.shapes.B2Shape;
+import box2D.collision.shapes.B2CircleShape;
+import box2D.dynamics.B2BodyDef;
+import box2D.dynamics.B2Body;
 import openfl.filters.DropShadowFilter;
 import openfl.geom.ColorTransform;
 import openfl.utils.AssetType;
@@ -16,11 +24,29 @@ class Mice extends MovieClip
     public var furColor = 0xdfd8ce;
     public var furId = 1;
     private var animations = new Map<String, MovieClip>();
-    public function new() {
+    public var physics: B2Body;
+
+    public function new(x: Float, y: Float) {
         super();
+        this.x = x;
+        this.y = y;
         this.setAnim();
         this.addEventListener(Event.ENTER_FRAME, stage_onEnterFrame);
         Lib.current.addChild(this);
+        var bodyDef: B2BodyDef = new B2BodyDef();
+        bodyDef.type = B2Body.b2_dynamicBody;
+        bodyDef.position.x = this.x / 30;
+        bodyDef.position.y = this.y / 30;
+        bodyDef.fixedRotation = false;
+        var circleShape: B2CircleShape = new B2CircleShape(0.5);
+        var circleFixture: B2FixtureDef = new B2FixtureDef();
+        circleFixture.density = 2.0;
+        circleFixture.friction = 0.2;
+        circleFixture.restitution = 0.2;
+        circleFixture.shape = circleShape;
+        this.physics = Transformice.instance.physicWorld.createBody(bodyDef);
+        this.physics.createFixture(circleFixture);
+        this.physics.setSleepingAllowed(true);
     }
 
     public function runLeft() {
@@ -102,11 +128,15 @@ class Mice extends MovieClip
     }
 
     private function stage_onEnterFrame(event:Event):Void {
+        trace("COOL");
+        this.x = this.physics.getPosition().x * 30;
+        this.y = this.physics.getPosition().y * 30;
         if (this.runningLeft || this.runningRight) {
             if (this.turnedRight) {
-                this.x += 1.5;
+                this.physics.applyImpulse(new B2Vec2(0.1, 0), this.physics.getPosition());
             } else {
-                this.x -= 1.5;
+                this.physics.applyImpulse(new B2Vec2(-0.1, 0), this.physics.getPosition());
+                // this.physics.apply(new B2Vec2(1.5, 0), this.physics.getPosition());
             }
         }
     };
@@ -146,11 +176,11 @@ class Mice extends MovieClip
         if (!this.turnedRight && this.scaleX > 0)
             this.scaleX = -(this.scaleX);
         if (this.turnedRight && this.scaleX < 0)
-			this.scaleX = -(this.scaleX);
+            this.scaleX = -(this.scaleX);
         this.addChild(animation);
     }
-
-    private function changeAnim() {
+    
+    private function changeAnim() { 
         this.removeCurrentAnimation();
         this.setAnim();
     }

@@ -1,8 +1,11 @@
+import openfl.display.Sprite;
+import box2D.dynamics.B2Body;
 import openfl.events.KeyboardEvent;
 
-class Player
+class Player 
 {
-    private var mice:Mice;
+    public var mice:Mice;
+
     public function new(mice) {
         this.mice = mice;
     }

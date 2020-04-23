@@ -1,0 +1,31 @@
+-main ApplicationMain 
+--macro openfl._internal.macros.ExtraParams.include()
+-cp C:/HaxeToolkit/haxe/lib/openfl/8,9,6/src
+-D openfl=8.9.6
+--macro lime._internal.macros.DefineMacro.run()
+-cp C:/HaxeToolkit/haxe/lib/lime/7,7,0/src
+-D lime=7.7.0
+-cp C:/HaxeToolkit/haxe/lib/box2d/1,2,3
+-D box2d=1.2.3
+-cp C:\Users\EGTech\Desktop\github\transformice\Export\html5/haxe/_generated
+-cp Source
+-D tools=7.7.0
+-D swf=1
+-D lime-canvas
+-D howlerjs
+-D no-compilation
+-D openfl-html5
+-D lime-webgl
+-D lime-dom
+-D lime-howlerjs
+-D lime-html5
+-D stats
+-D html5
+-D web
+--remap flash:openfl
+--connect
+6000
+-js Export/html5/bin/Transformice.js
+-cp Export/html5/haxe
+-D html5
+-debug
