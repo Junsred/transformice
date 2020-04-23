@@ -18,7 +18,7 @@ class Player
         } else if (event.keyCode == 83 || event.keyCode == 40) {
 			this.mice.duck();
         } else if (event.keyCode == 87 || event.keyCode == 38) {
-            //JUMP
+            this.mice.jump();
         }
     };
 

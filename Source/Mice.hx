@@ -6,14 +6,14 @@ import box2D.collision.shapes.B2Shape;
 import box2D.collision.shapes.B2CircleShape;
 import box2D.dynamics.B2BodyDef;
 import box2D.dynamics.B2Body;
-import openfl.filters.DropShadowFilter;
-import openfl.geom.ColorTransform;
-import openfl.utils.AssetType;
-import js.lib.Map;
-import openfl.events.Event;
-import openfl.display.MovieClip;
-import openfl.Lib;
-import openfl.Assets;
+import flash.filters.DropShadowFilter;
+import flash.geom.ColorTransform;
+import flash.utils.AssetType;
+import flash.events.Event;
+import flash.display.MovieClip;
+import flash.Lib;
+import flash.Assets;
+import haxe.ds.Map;
 
 class Mice extends MovieClip
 {
@@ -21,6 +21,7 @@ class Mice extends MovieClip
     public var runningRight = false;
     public var runningLeft = false;
     public var ducking = false;
+    public var jumping = false;
     public var furColor = 0xdfd8ce;
     public var furId = 1;
     private var animations = new Map<String, MovieClip>();
@@ -40,8 +41,8 @@ class Mice extends MovieClip
         bodyDef.fixedRotation = false;
         var circleShape: B2CircleShape = new B2CircleShape(0.5);
         var circleFixture: B2FixtureDef = new B2FixtureDef();
-        circleFixture.density = 2.0;
-        circleFixture.friction = 0.2;
+        circleFixture.density = 1.0;
+        circleFixture.friction = 0;
         circleFixture.restitution = 0.2;
         circleFixture.shape = circleShape;
         this.physics = Transformice.instance.physicWorld.createBody(bodyDef);
@@ -66,6 +67,20 @@ class Mice extends MovieClip
     public function stopRun() {
         if (this.runningLeft || this.runningRight) {
             this.runningRight = this.runningLeft = false;
+            this.changeAnim();
+        }
+    }
+
+    public function jump() {
+        if (!this.jumping) {
+            this.changeAnim();
+            this.physics.applyImpulse(new B2Vec2(0, -5), this.physics.getPosition());
+        }
+    }
+
+    public function stopJump() {
+        if (this.jumping) {
+            this.jumping = false;
             this.changeAnim();
         }
     }
@@ -117,6 +132,7 @@ class Mice extends MovieClip
         this.runningLeft = !this.runningRight;
         this.ducking = false;
         this.changeAnim();
+        this.getCurrentAnimation().gotoAndPlay(0);
     }
 
     private function getCurrentAnimation() {
@@ -128,7 +144,6 @@ class Mice extends MovieClip
     }
 
     private function stage_onEnterFrame(event:Event):Void {
-        trace("COOL");
         this.x = this.physics.getPosition().x * 30;
         this.y = this.physics.getPosition().y * 30;
         if (this.runningLeft || this.runningRight) {

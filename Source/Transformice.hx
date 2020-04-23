@@ -12,11 +12,11 @@ import box2D.collision.shapes.B2CircleShape;
 import box2D.dynamics.B2BodyDef;
 import box2D.common.math.B2Vec2;
 import box2D.dynamics.B2World;
-import openfl.events.KeyboardEvent;
 import lime.ui.Gamepad;
 import lime.ui.GamepadButton;
-import openfl.display.Sprite;
-import openfl.events.MouseEvent;
+import flash.display.Sprite;
+import flash.events.MouseEvent;
+import flash.events.KeyboardEvent;
 
 class Transformice extends Sprite
 {
@@ -24,7 +24,7 @@ class Transformice extends Sprite
 	public static var instance: Transformice;
 
 	public var mices = new List<Mice>();
-	public var physicWorld: B2World = new B2World(new B2Vec2(0, 1.0), true);
+	public var physicWorld: B2World = new B2World(new B2Vec2(0, 10), true);
 	public var player: Player;
 
 	public function new()
@@ -49,8 +49,8 @@ class Transformice extends Sprite
 		boxShape = new B2PolygonShape();
 		boxFixture = new B2FixtureDef();
 		boxShape.setAsBox(30, 3);
-		boxFixture.density = 1;
-		boxFixture.friction = 0.2;
+		boxFixture.density = 0.2;a
+		boxFixture.friction = 0.3;
 		boxFixture.shape = boxShape;
 		var body: B2Body = this.physicWorld.createBody(bodyDef);
 		body.createFixture(boxFixture);
