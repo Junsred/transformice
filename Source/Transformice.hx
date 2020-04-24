@@ -17,7 +17,6 @@ class Transformice extends Sprite
 
 	public static var instance: Transformice;
 
-	public var mices = new List<Mice>();
 	public var physicWorld: B2World;
 	public var player: Player;
 	public var timeZero:Float;
@@ -26,8 +25,8 @@ class Transformice extends Sprite
 	public function new()
 	{
 		super();
+		stage.frameRate = 36;
 		this.timeZero = flash.Lib.getTimer();
-		stage.quality = StageQuality.HIGH;
 		this.physicWorld = new B2World(new B2Vec2(0, 10), true);
 		Transformice.instance = this;
 		this.addEventListener(Event.ENTER_FRAME, this.stage_onFrameEnter);
@@ -65,14 +64,50 @@ class Transformice extends Sprite
 	}
 
 	private function createMice(x: Float, y: Float) {
-		var mice = new Mice(x, y);
-		mices.add(mice);
-		return mice;
+		return new Mice(x, y);
 	}
 
 	private function stage_onFrameEnter(event: Event): Void 
 	{
-
+		var body:B2Body = this.physicWorld.getBodyList();
+		while(body != null) {
+            var mice = cast(body.getUserData(), Mice);
+            if(mice != null) {
+				mice.x = body.getPosition().x * 30;
+				mice.y = body.getPosition().y * 30;
+				if (mice.runningLeft || mice.runningRight) {
+					if (mice.turnedRight) {
+						if (body.m_linearVelocity.x < 3) {
+							body.m_linearVelocity.x += 0.5;
+						}
+					} else {
+						if (-3 < body.m_linearVelocity.x) {
+							body.m_linearVelocity.x -= 0.5;
+						}
+					}
+					mice.lastMovement = flash.Lib.getTimer();
+				} else if (flash.Lib.getTimer() - mice.lastMovement < 200) {
+					if(body.m_linearVelocity.x < 3 - 0.5 || -(3 + 0.5) < body.m_linearVelocity.x)
+						{
+							body.m_linearVelocity.x = body.m_linearVelocity.x / 1.2;
+						}
+				}
+				if (mice.jumping) {
+					if (mice.lastYVelocity > 0) {
+						if(mice.lastYVelocity > body.m_linearVelocity.y) {
+							mice.lastYVelocity = -1;
+							this.player.jumpAvailableTime = flash.Lib.getTimer();
+							mice.stopJump();
+						} else {
+							mice.lastYVelocity = body.m_linearVelocity.y;
+						}
+					} else {
+						mice.lastYVelocity = body.m_linearVelocity.y;
+					}
+				}
+			}
+			body = body.m_next;
+		}
 		var _loc55_ = flash.Lib.getTimer() - this.timeZero;
         var _loc56_ = _loc55_ / 33.33;
         var _loc57_ = _loc56_ - this.calculatedImages;
@@ -82,12 +117,11 @@ class Transformice extends Sprite
 		}
 		var _loc29_ = 0;
 		while(_loc29_ < _loc57_) {
-			//migth be 1.0/30.0 not sure 60.0 feels like tfm?
-			this.physicWorld.step(1.0/60.0, 10, 1);
+			this.physicWorld.step(1.0/30.0, 10, 1);
 			_loc29_++;
 		}
 		this.calculatedImages = _loc56_;
-		this.physicWorld.drawDebugData();
+		//this.physicWorld.drawDebugData();
 
 	}
 
@@ -127,7 +161,7 @@ class Transformice extends Sprite
 	
 	private function stage_onMouseClick(event:MouseEvent):Void
 	{
-		//var mice = createMice(event.localX, event.localY);
-		//player.mice = mice;
+		var mice = createMice(event.localX, event.localY);
+		player.mice = mice;
 	}
 }

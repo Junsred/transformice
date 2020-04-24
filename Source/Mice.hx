@@ -1,9 +1,6 @@
 import box2D.collision.shapes.B2MassData;
 import box2D.common.math.B2Vec2;
-import box2D.dynamics.B2Fixture;
 import box2D.dynamics.B2FixtureDef;
-import box2D.dynamics.contacts.B2CircleContact;
-import box2D.collision.shapes.B2Shape;
 import box2D.collision.shapes.B2CircleShape;
 import box2D.dynamics.B2BodyDef;
 import box2D.dynamics.B2Body;
@@ -26,7 +23,8 @@ class Mice extends MovieClip
     public var jumping = false;
     public var furColor = 0xdfd8ce;
     public var lastMovement:Int;
-    public var furId = 1;
+    public var lastYVelocity:Float = 0;
+    public var furId = 18;
     public var physics: B2Body;
 
     public function new(x: Float, y: Float) {
@@ -34,13 +32,13 @@ class Mice extends MovieClip
         this.x = x;
         this.y = y;
         this.setAnim();
-        this.addEventListener(Event.ENTER_FRAME, stage_onEnterFrame);
         Lib.current.addChild(this);
         var bodyDef: B2BodyDef = new B2BodyDef();
         bodyDef.type = B2Body.b2_dynamicBody;
         bodyDef.position.x = this.x / 30;
         bodyDef.position.y = this.y / 30;
         bodyDef.fixedRotation = true;
+        bodyDef.userData = this;
         var circleFixture: B2FixtureDef = new B2FixtureDef();
         circleFixture.density = 2;
         circleFixture.friction = 0.2;
@@ -79,7 +77,7 @@ class Mice extends MovieClip
 
     public function jump() {
         if (!this.jumping) {
-            //this.jumping = true; don't set yet
+            this.jumping = true;
             this.changeAnim();
             this.physics.m_linearVelocity.y = -5;
         }
@@ -97,24 +95,28 @@ class Mice extends MovieClip
             this.ducking = true;
             this.runningLeft = this.runningRight = false;
             this.changeAnim();
-            var clip = this.getCurrentAnimation();
-            clip.gotoAndPlay(0);
-            clip.addFrameScript(6, () -> {
-                clip.stop();
-            });
+            if (!this.jumping) {
+                var clip = this.getCurrentAnimation();
+                clip.gotoAndPlay(0);
+                clip.addFrameScript(6, () -> {
+                    clip.stop();
+                });
+            }
         }
     }
 
     public function stopDuck() {
         if (this.ducking) {
             this.ducking = false;
-            var clip = this.getCurrentAnimation();
-            clip.gotoAndPlay(7);
-			clip.addFrameScript(10, () -> {
-                this.removeChild(clip);
-                this.changeAnim();
-			});
-            clip.play();
+            if (!this.jumping) {
+                var clip = this.getCurrentAnimation();
+                clip.gotoAndPlay(7);
+                clip.addFrameScript(10, () -> {
+                    this.removeChild(clip);
+                    this.changeAnim();
+                });
+                clip.play();
+            }
         }
     }
 
@@ -139,7 +141,6 @@ class Mice extends MovieClip
         this.runningLeft = !this.runningRight;
         this.ducking = false;
         this.changeAnim();
-        this.getCurrentAnimation().gotoAndPlay(0);
     }
 
     private function getCurrentAnimation() {
@@ -149,28 +150,6 @@ class Mice extends MovieClip
     private function removeCurrentAnimation() {
         this.removeChildAt(0);
     }
-
-    private function stage_onEnterFrame(event:Event):Void {
-        this.x = this.physics.getPosition().x * 30;
-        this.y = this.physics.getPosition().y * 30;
-        if (this.runningLeft || this.runningRight) {
-            if (this.turnedRight) {
-                if (this.physics.m_linearVelocity.x < 3) {
-                    this.physics.m_linearVelocity.x += 0.5;
-                }
-            } else {
-                if (-3 < this.physics.m_linearVelocity.x) {
-                    this.physics.m_linearVelocity.x -= 0.5;
-                }
-            }
-            this.lastMovement = flash.Lib.getTimer();
-        } else if (flash.Lib.getTimer() - this.lastMovement < 200) {
-            if(this.physics.m_linearVelocity.x < 3 - 0.5 || -(3 + 0.5) < this.physics.m_linearVelocity.x)
-                {
-                    this.physics.m_linearVelocity.x = this.physics.m_linearVelocity.x / 1.2;
-                }
-        }
-    };
 
     private function setAnim() {
         var anim = "AnimStatique";
@@ -203,6 +182,13 @@ class Mice extends MovieClip
             }
             animation.filters = [new DropShadowFilter()];
             animations.set(anim, animation);
+        }
+        if (!this.jumping) {
+            animation.gotoAndPlay(0);
+        } else {
+            if (animation.isPlaying) {
+                animation.gotoAndStop(Std.random(animation.totalFrames));
+            }
         }
         animation.mask = null;
         if (!this.turnedRight && this.scaleX > 0)

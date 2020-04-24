@@ -3,6 +3,7 @@ import flash.events.KeyboardEvent;
 class Player 
 {
     public var mice:Mice;
+    public var jumpAvailableTime:Int;
 
     public function new(mice) {
         this.mice = mice;
@@ -18,7 +19,9 @@ class Player
         } else if (event.keyCode == 83 || event.keyCode == 40) {
 			this.mice.duck();
         } else if (event.keyCode == 87 || event.keyCode == 38) {
-            this.mice.jump();
+            if (flash.Lib.getTimer() - this.jumpAvailableTime >= 50) {
+                this.mice.jump();
+            }
         }
     };
 
