@@ -4,7 +4,7 @@
 	<meta title="Transoformice" package="org.openfl.transformice" version="1.0.0" company="OpenFL" />
 	<app main="Transformice" path="Export" file="Transformice" />
 	
-	<window fps="61" background="#6A7495" resizable="false" />
+	<window background="#6A7495" />
 	
 	<source path="Source" />
 	
@@ -18,5 +18,4 @@
 	<library path="assets/swf/x_Ressources_Class.swf" preload="true" id="resources" />
 	<library path="assets/swf/x_meli_costumes.swf" preload="true" id="costumes" />
 	<library path="assets/swf/x_fourrures.swf" preload="true" id="furs" />
-	<template path="templates" />
 </project>

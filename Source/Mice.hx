@@ -32,7 +32,7 @@ class Mice extends MovieClip
         this.x = x;
         this.y = y;
         this.setAnim();
-        Lib.current.addChild(this);
+        Transformice.instance.world.addChild(this);
         var bodyDef: B2BodyDef = new B2BodyDef();
         bodyDef.type = B2Body.b2_dynamicBody;
         bodyDef.position.x = this.x / 30;
