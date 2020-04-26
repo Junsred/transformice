@@ -8,12 +8,13 @@ import flash.filters.DropShadowFilter;
 import flash.geom.ColorTransform;
 import flash.utils.AssetType;
 import flash.events.Event;
+import flash.display.Sprite;
 import flash.display.MovieClip;
 import flash.Lib;
 import flash.Assets;
 import haxe.ds.Map;
 
-class Mice extends MovieClip
+class Mice extends Sprite
 {
     private var animations = new Map<String, MovieClip>();
     public var turnedRight = true;
@@ -24,7 +25,7 @@ class Mice extends MovieClip
     public var furColor = 0xdfd8ce;
     public var lastMovement:Int;
     public var lastYVelocity:Float = 0;
-    public var furId = 18;
+    public var furId = 4;
     public var physics: B2Body;
 
     public function new(x: Float, y: Float) {

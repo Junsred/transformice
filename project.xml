@@ -4,7 +4,7 @@
 	<meta title="Transoformice" package="org.openfl.transformice" version="1.0.0" company="OpenFL" />
 	<app main="Transformice" path="Export" file="Transformice" />
 	
-	<window background="#6A7495" />
+	<window background="#6A7495" fps="61" />
 	
 	<source path="Source" />
 	
