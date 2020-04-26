@@ -40,8 +40,6 @@ class Transformice extends Sprite
 		this.world = new Sprite();
 		this.world.x = Lib.application.window.width/2-400;
 		this.world.y = Lib.application.window.height/2-300;
-		//this.world.width = Lib.application.window.width;
-		//this.world.height = Lib.application.window.height;
 		stage.addChild(this.world);
 
 		this.addEventListener(Event.ENTER_FRAME, this.stage_onFrameEnter);
