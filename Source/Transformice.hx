@@ -79,14 +79,18 @@ class Transformice extends Sprite
 				speed *= 0.5;
 			}
 			if (mice.turnedRight) {
-				mice.physics.m_linearVelocity.x += speed;
-				if (mice.physics.m_linearVelocity.x > maxMiceSpeed) {
-					mice.physics.m_linearVelocity.x = maxMiceSpeed;
+				if (mice.physics.m_linearVelocity.x < maxMiceSpeed) {
+					mice.physics.m_linearVelocity.x += speed;
+					if (mice.physics.m_linearVelocity.x > maxMiceSpeed) {
+						mice.physics.m_linearVelocity.x = maxMiceSpeed;
+					}
 				}
 			} else {
-				mice.physics.m_linearVelocity.x -= speed;
-				if (mice.physics.m_linearVelocity.x < -maxMiceSpeed) {
-					mice.physics.m_linearVelocity.x = -maxMiceSpeed;
+				if (mice.physics.m_linearVelocity.x > -maxMiceSpeed) {
+					mice.physics.m_linearVelocity.x -= speed;
+					if (mice.physics.m_linearVelocity.x < -maxMiceSpeed) {
+						mice.physics.m_linearVelocity.x = -maxMiceSpeed;
+					}
 				}
 			}
 			mice.lastMovement = 0;
