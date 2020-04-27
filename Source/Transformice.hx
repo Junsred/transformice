@@ -9,7 +9,6 @@ import box2D.dynamics.B2FixtureDef;
 import box2D.dynamics.B2BodyDef;
 import box2D.common.math.B2Vec2;
 import box2D.dynamics.B2World;
-import flash.filters.DropShadowFilter;
 import flash.display.DisplayObject;
 import flash.events.MouseEvent;
 import flash.display.MovieClip;
@@ -29,6 +28,7 @@ class Transformice extends Sprite
 	public var lastFrameTime:Float = 0;
 	public var playableFrames:Float = 0;
 	public var passedTime:Float = 0;
+	public var maxMiceSpeed:Float = 3.45 + Math.random() * 1.0e-6;
 
 	public function new()
 	{
@@ -73,6 +73,29 @@ class Transformice extends Sprite
 		return new Mice(x, y);
 	}
 
+	private function processMiceMovement(mice:Mice, speed:Float) {
+		if (mice.runningLeft || mice.runningRight) {
+			if (mice.turnedRight) {
+				mice.physics.m_linearVelocity.x += speed;
+				if (mice.physics.m_linearVelocity.x > maxMiceSpeed) {
+					mice.physics.m_linearVelocity.x = maxMiceSpeed;
+				}
+			} else {
+				mice.physics.m_linearVelocity.x -= speed;
+				if (mice.physics.m_linearVelocity.x < -maxMiceSpeed) {
+					mice.physics.m_linearVelocity.x = -maxMiceSpeed;
+				}
+			}
+			mice.lastMovement = 0;
+		} else if (mice.lastMovement < 4) {
+			mice.lastMovement++;
+			if(mice.physics.m_linearVelocity.x < 2.5 || -2.5 < mice.physics.m_linearVelocity.x) {
+				mice.physics.m_linearVelocity.x = mice.physics.m_linearVelocity.x * 0.8;
+			}
+		}
+	}
+
+
 	private function stage_onFrameEnter(event: Event): Void 
 	{
 		var difference:Float = flash.Lib.getTimer() - lastFrameTime;
@@ -83,40 +106,36 @@ class Transformice extends Sprite
 		lastFrameTime = flash.Lib.getTimer();
 		playableFrames += sec;
 		this.passedTime += sec;
-		var rate = 1/60;
+		var rate = 0.03332 + Math.random() * 1.0e-6;
 		while(playableFrames > rate) {
 			playableFrames = playableFrames - rate;
 			this.physicWorld.step(rate, 10, 10);
-			var body:B2Body = this.physicWorld.getBodyList();
-			while(body != null) {
-				if (body.m_xf.position.x > 50 || body.m_xf.position.y > 50) {
-					this.physicWorld.destroyBody(body);
-				}
-				var userData = cast(body.getUserData(), DisplayObject);
-				if(Std.is(userData, Mice)) {
-					var mice = cast(userData, Mice);
-					mice.x = body.m_xf.position.x * 30;
-					mice.y = body.m_xf.position.y * 30;
-					if (mice.runningLeft || mice.runningRight) {
-						if (mice.turnedRight) {
-							if (body.m_linearVelocity.x < 3) {
-								body.m_linearVelocity.x += 0.5;
-							}
-						} else {
-							if (-3 < body.m_linearVelocity.x) {
-								body.m_linearVelocity.x -= 0.5;
-							}
-						}
-						mice.lastMovement = 0;
-					} else if (mice.lastMovement < 4) {
-						mice.lastMovement++;
-						if(body.m_linearVelocity.x < 2.5 || -2.5 < body.m_linearVelocity.x) {
-							body.m_linearVelocity.x = body.m_linearVelocity.x * 0.8;
-						}
+			this.processMiceMovement(this.player.mice, 1);
+		}
+		var _loc26_ = 0.0;
+		if(playableFrames > 0.003 + Math.random() * 1.0e-6) {
+			this.physicWorld.step(playableFrames, 10, 10);
+			_loc26_ = playableFrames / rate;
+			processMiceMovement(this.player.mice, _loc26_);
+			playableFrames = 0;
+		}
+		var body:B2Body = this.physicWorld.getBodyList();
+		while(body != null) {
+			if (body.m_xf.position.x > 50 || body.m_xf.position.y > 50) {
+				this.physicWorld.destroyBody(body);
+			}
+			var userData = cast(body.getUserData(), DisplayObject);
+			if(Std.is(userData, Mice)) {
+				var mice = cast(userData, Mice);
+				mice.x = body.m_xf.position.x * 30;
+				mice.y = body.m_xf.position.y * 30;
+				if (mice != this.player.mice) {
+					if(0 < _loc26_) {
+						processMiceMovement(mice, _loc26_);
 					}
 				}
-				body = body.m_next;
 			}
+			body = body.m_next;
 		}
 		if (player.mice.jumping) {
 			if (player.mice.lastYVelocity > 0) {
