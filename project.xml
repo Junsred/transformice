@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="Transoformice" package="org.openfl.transformice" version="1.0.0" company="OpenFL" />
+	<meta title="Transformice" package="org.openfl.transformice" version="1.0.0" company="OpenFL" />
 	<app main="Transformice" path="Export" file="Transformice" />
 	
 	<window background="#6A7495" fps="61" />
