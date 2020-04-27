@@ -75,6 +75,9 @@ class Transformice extends Sprite
 
 	private function processMiceMovement(mice:Mice, speed:Float) {
 		if (mice.runningLeft || mice.runningRight) {
+			if (mice.jumping) {
+				speed *= 0.5;
+			}
 			if (mice.turnedRight) {
 				mice.physics.m_linearVelocity.x += speed;
 				if (mice.physics.m_linearVelocity.x > maxMiceSpeed) {
@@ -89,8 +92,8 @@ class Transformice extends Sprite
 			mice.lastMovement = 0;
 		} else if (mice.lastMovement < 4) {
 			mice.lastMovement++;
-			if(mice.physics.m_linearVelocity.x < 2.5 || -2.5 < mice.physics.m_linearVelocity.x) {
-				mice.physics.m_linearVelocity.x = mice.physics.m_linearVelocity.x * 0.8;
+			if(mice.physics.m_linearVelocity.x < 2.5 + Math.random() * 1.0e-6 || -2.5 + Math.random() * 1.0e-6 < mice.physics.m_linearVelocity.x) {
+				mice.physics.m_linearVelocity.x = mice.physics.m_linearVelocity.x * 0.8 + Math.random() * 1.0e-6;
 			}
 		}
 	}
@@ -181,10 +184,10 @@ class Transformice extends Sprite
 			sp.height = height;
 			sp.x = -(width / 2);
 			sp.y = -(height / 2);
-			var sp2 = new Sprite();
+			/*var sp2 = new Sprite();
 			sp2.graphics.lineStyle(1, 0, 0.9);
 			sp2.graphics.drawRect(-(width / 2), -(height / 2), width, height);
-			_loc28_.addChild(sp2);
+			_loc28_.addChild(sp2);*/
 		}
 		_loc28_.x = x;
 		_loc28_.y = y;
